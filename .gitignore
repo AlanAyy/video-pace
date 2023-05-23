@@ -1,3 +1,13 @@
+# Custom files
+OLD/
+outputs/
+pretrain_cks/
+visual_logs/
+
+
+
+# Default Python .gitignore template below
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
