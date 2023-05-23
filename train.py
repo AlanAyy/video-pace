@@ -2,6 +2,7 @@ import os
 import time
 import argparse
 import numpy as np
+from tqdm import tqdm
 
 import torch
 from torch import nn, optim
@@ -102,10 +103,10 @@ def train(args):
 
     model.train()
 
-    for epoch in range(args.epoch):
+    for epoch in tqdm(range(args.epoch)):
         start_time = time.time()
 
-        for i, sample in enumerate(dataloader):
+        for i, sample in enumerate(tqdm(dataloader, leave=False)):
             rgb_clip, labels = sample
             rgb_clip = rgb_clip.to(device, dtype=torch.float)
             labels = labels.to(device)
@@ -118,7 +119,8 @@ def train(args):
 
             probs = nn.Softmax(dim=1)(outputs)
             preds = torch.max(probs, 1)[1]
-            accuracy = torch.sum(preds == labels.data).detach().cpu().numpy().astype(np.float)
+            # accuracy = torch.sum(preds == labels.data).detach().cpu().numpy().astype(np.float)
+            accuracy = torch.sum(preds == labels.data).detach().cpu().numpy().astype(float)
             accuracy = accuracy / args.bs
 
             iterations += 1
@@ -127,8 +129,8 @@ def train(args):
                 writer.add_scalar('data/train_loss', loss, iterations)
                 writer.add_scalar('data/Acc', accuracy, iterations)
 
-                print("[Epoch{}/{}] Loss: {} Acc: {} Time {} ".format(
-                    epoch + 1, i, loss, accuracy, time.time() - start_time))
+                print("Epoch[{}][{}/{}] Loss: {} Acc: {} Time {} ".format(
+                    epoch + 1, i, len(dataloader), loss, accuracy, time.time() - start_time))
 
             start_time = time.time()
 
